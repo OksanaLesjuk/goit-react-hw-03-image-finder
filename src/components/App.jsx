@@ -21,8 +21,6 @@ export default class App extends Component {
     tags: null,
   };
 
-  componentDidMount;
-
   componentDidUpdate(_, prevState) {
     if (
       this.state.currentPage !== prevState.currentPage ||
@@ -70,11 +68,11 @@ export default class App extends Component {
   };
 
   handleModal = obj => {
-    this.setState({ showModal: true, ...obj });
+    this.setState({ isLoading: true, showModal: true, ...obj });
   };
 
   handleCloseModal = () => {
-    this.setState({ showModal: false });
+    this.setState({ isLoading: false, showModal: false });
   };
 
   handleBtnLoad = () => {
