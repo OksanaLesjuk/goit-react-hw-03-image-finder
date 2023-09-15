@@ -1,14 +1,21 @@
 import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
+import { ImageGalleryList } from './ImageGallery.styled';
 
-const ImageGallery = ({ hits }) => {
-  console.log('hits in ImageGallery  :>> ', hits);
+const ImageGallery = ({ hits, onClick }) => {
   return (
     <div>
-      <ul>
-        {hits.map(hit => (
-          <ImageGalleryItem hit={hit} key={hit.id} />
+      <ImageGalleryList>
+        {hits.map(({ id, webformatURL, largeImageURL, tags }) => (
+          <ImageGalleryItem
+            key={id}
+            id={id}
+            webformatURL={webformatURL}
+            largeImageURL={largeImageURL}
+            tags={tags}
+            onClick={onClick}
+          />
         ))}
-      </ul>
+      </ImageGalleryList>
     </div>
   );
 };

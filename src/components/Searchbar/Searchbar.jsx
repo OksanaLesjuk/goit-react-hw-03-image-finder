@@ -1,5 +1,12 @@
 import { Notify } from 'notiflix';
 import { Component } from 'react';
+import {
+  SearchbarHeader,
+  SearchForm,
+  SearchFormButton,
+  SearchFormButtonLabel,
+  SearchFormInput,
+} from './Searchbar.styled';
 
 export default class Searchbar extends Component {
   state = {
@@ -23,13 +30,13 @@ export default class Searchbar extends Component {
   render() {
     return (
       <div>
-        <header className="searchbar">
-          <form className="form" onSubmit={this.handleSubmit}>
-            <button type="submit" className="button">
-              <span className="button-label">Search</span>
-            </button>
+        <SearchbarHeader>
+          <SearchForm onSubmit={this.handleSubmit}>
+            <SearchFormButton type="submit">
+              <SearchFormButtonLabel>Search</SearchFormButtonLabel>
+            </SearchFormButton>
 
-            <input
+            <SearchFormInput
               className="input"
               type="text"
               autoComplete="off"
@@ -38,8 +45,8 @@ export default class Searchbar extends Component {
               onChange={this.handleInputQuery}
               value={this.state.inputQuery}
             />
-          </form>
-        </header>
+          </SearchForm>
+        </SearchbarHeader>
       </div>
     );
   }

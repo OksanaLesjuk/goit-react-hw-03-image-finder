@@ -1,11 +1,24 @@
-import React from 'react';
+import { Component } from 'react';
+import {
+  ImageGalleryItemImg,
+  ImageGalleryItemStyled,
+} from './ImageGalleryItem.styled';
 
-const ImageGalleryItem = ({ hit: { webformatURL, largeImageURL, id } }) => {
-  return (
-    <li className="gallery-item">
-      <img src={webformatURL} alt="" />
-    </li>
-  );
-};
+export default class ImageGalleryItem extends Component {
+  state = {
+    largeImageURL: this.props.largeImageURL,
+    tags: this.props.tags,
+  };
+  hendleImgClick = () => {
+    this.props.onClick(this.state);
+  };
+  render() {
+    const { webformatURL, tags } = this.props;
 
-export default ImageGalleryItem;
+    return (
+      <ImageGalleryItemStyled onClick={this.hendleImgClick}>
+        <ImageGalleryItemImg src={webformatURL} alt={tags} />
+      </ImageGalleryItemStyled>
+    );
+  }
+}

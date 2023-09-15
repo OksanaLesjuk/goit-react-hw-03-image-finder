@@ -4,91 +4,26 @@ import ImageGallery from './ImageGallery/ImageGallery';
 import { getPhotosService } from 'api/api';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import Loader from './Loader/Loader';
-
-//ВАРІАНТ 1 Стейт-машина  ПИТАННЯ Як зарендирити форму ?
-
-// export default class App extends Component {
-//   state = {
-//     searchQuery: '',
-//     gallery: null,
-//     currentPage: 1,
-//     error: null,
-
-//     status: 'idle',
-//   };
-
-//   componentDidMount;
-
-//   componentDidUpdate(prevProps, prevState) {
-//     if (
-//       this.state.currentPage !== prevState.currentPage ||
-//       this.state.searchQuery !== prevState.searchQuery
-//     ) {
-//       this.fetchGallery();
-//     }
-//   }
-
-//   fetchGallery = async () => {
-//     this.setState({ status: 'panding' });
-//     try {
-//       const { hits } = await getPhotosService(
-//         this.state.searchQuery,
-//         this.state.currentPage
-//       );
-//       this.setState({ gallery: hits, status: 'resolved' });
-
-//       if (hits.length === 0) {
-//         this.setState({ error: 'Not data found' });
-//       }
-//       if (hits.length > 0) {
-//         this.setState({ gallery: hits });
-//       }
-//     } catch (err) {
-//       this.setState({ error: err.message, status: 'rejected' });
-//     }
-//   };
-
-//   hendleFormSubmit = searchQuery => {
-//     this.setState({ error: null, searchQuery });
-//   };
-
-//   render() {
-//     const { error, gallery, status } = this.state;
-
-//     if (status === 'panding') {
-//       return <Loader />;
-//     }
-
-//     if (status === 'rejected') {
-//       return Notify.failure(error);
-//     }
-
-//     if (status === 'resolved') {
-//       return <ImageGallery hits={gallery} />;
-//     }
-
-//     return (
-//       <>
-//         <Searchbar onSubmit={this.hendleFormSubmit} />
-//       </>
-//     );
-//   }
-// }
-
-//ВАРІАНТ 2 Класичний
+import Modal from './Modal/Modal';
+import StyledApp from 'App.styled';
+import Button from './Button/Button';
 
 export default class App extends Component {
   state = {
     searchQuery: '',
-    gallery: null,
+    gallery: [],
     currentPage: 1,
+    quantityPage: null,
     error: null,
     isLoading: false,
+    showModal: false,
+    largeImageURL: null,
+    tags: null,
   };
 
   componentDidMount;
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(_, prevState) {
     if (
       this.state.currentPage !== prevState.currentPage ||
       this.state.searchQuery !== prevState.searchQuery
@@ -100,17 +35,22 @@ export default class App extends Component {
   fetchGallery = async () => {
     this.setState({ isLoading: true });
     try {
-      const { hits } = await getPhotosService(
+      const { hits, totalHits } = await getPhotosService(
         this.state.searchQuery,
         this.state.currentPage
       );
-      this.setState({ gallery: hits });
 
-      if (hits.length === 0) {
-        this.setState({ error: 'Not data found' });
+      if (!hits.length) {
+        Notify.failure(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+        return;
       }
       if (hits.length > 0) {
-        this.setState({ gallery: hits });
+        this.setState(prev => ({
+          gallery: [...prev.gallery, ...hits],
+          quantityPage: Math.ceil(totalHits / 12),
+        }));
       }
     } catch (err) {
       this.setState({ error: err.message });
@@ -119,20 +59,65 @@ export default class App extends Component {
     }
   };
 
-  hendleFormSubmit = searchQuery => {
-    this.setState({ error: null, searchQuery });
+  handleFormSubmit = searchQuery => {
+    this.setState({
+      currentPage: 1,
+      quantityPage: null,
+      gallery: [],
+      error: null,
+      searchQuery,
+    });
+  };
+
+  handleModal = obj => {
+    this.setState({ showModal: true, ...obj });
+  };
+
+  handleCloseModal = () => {
+    this.setState({ showModal: false });
+  };
+
+  handleBtnLoad = () => {
+    this.setState(prev => ({
+      currentPage: prev.currentPage + 1,
+    }));
   };
 
   render() {
-    const { error, gallery, isLoading } = this.state;
+    const {
+      error,
+      gallery,
+      isLoading,
+      showModal,
+      largeImageURL,
+      tags,
+      currentPage,
+      quantityPage,
+    } = this.state;
 
     return (
-      <>
-        <Searchbar onSubmit={this.hendleFormSubmit} />
+      <StyledApp>
+        <Searchbar onSubmit={this.handleFormSubmit} />
         {isLoading && <Loader />}
         {error && Notify.failure(error)}
-        {gallery && gallery.length > 0 && <ImageGallery hits={gallery} />}
-      </>
+        {gallery && gallery.length > 0 && (
+          <ImageGallery hits={gallery} onClick={this.handleModal} />
+        )}
+        {currentPage < quantityPage && (
+          <Button handleBtnLoad={this.handleBtnLoad} />
+        )}
+        {currentPage === quantityPage &&
+          Notify.info(
+            "We're sorry, but you've reached the end of search results."
+          )}
+        {showModal && (
+          <Modal
+            largeImageURL={largeImageURL}
+            tags={tags}
+            handleCloseModal={this.handleCloseModal}
+          />
+        )}
+      </StyledApp>
     );
   }
 }

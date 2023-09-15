@@ -1,15 +1,23 @@
-import * as basicLightbox from 'basiclightbox';
-
-import React, { Component } from 'react';
+import { Component } from 'react';
+import { ModalStyled, Overlay } from './Modal.styled';
 
 export default class Modal extends Component {
-  handleOpenModal = () => {
-    const instance = basicLightbox.create(`
-          <img src="assets/images/image.png" width="800" height="600">
-        `);
-    instance.show();
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleEsc);
+  }
+  handleEsc = e => {
+    if (e.code === 'Escape') {
+      this.props.handleCloseModal();
+    }
   };
   render() {
-    return <div></div>;
+    const { largeImageURL, tags, handleCloseModal } = this.props;
+    return (
+      <Overlay onClick={handleCloseModal}>
+        <ModalStyled>
+          <img src={largeImageURL} alt={tags} />
+        </ModalStyled>
+      </Overlay>
+    );
   }
 }
