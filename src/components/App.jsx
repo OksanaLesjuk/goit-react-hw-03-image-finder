@@ -106,10 +106,7 @@ export default class App extends Component {
         {currentPage < quantityPage && (
           <Button handleBtnLoad={this.handleBtnLoad} />
         )}
-        {currentPage === quantityPage &&
-          Notify.info(
-            "We're sorry, but you've reached the end of search results."
-          )}
+
         {showModal && (
           <Modal
             largeImageURL={largeImageURL}
